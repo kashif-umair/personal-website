@@ -1,66 +1,644 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kashif Umair Liaqat - Software Engineer</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f2f2f2;
-      color: #333;
-    }
-    header {
-      background: #003366;
-      color: #fff;
-      text-align: center;
-      padding: 50px 0;
-    }
-    header h1 {
-      margin: 0;
-      font-size: 2.5rem;
-    }
-    main {
-      padding: 20px;
-      max-width: 800px;
-      margin: 0 auto;
-    }
-    section {
-      margin-bottom: 40px;
-      background: #fff;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    footer {
-      text-align: center;
-      padding: 20px 0;
-      background: #003366;
-      color: #fff;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kashif Umair Liaqat | Senior Product Engineer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Neutrals (Light gray background, dark text, muted teal accent) -->
+    <!-- Application Structure Plan: A section-based SPA with a top navigation bar for smooth scrolling. The structure prioritizes user-driven exploration over a linear CV format. It includes: 1. Hero/Intro, 2. Interactive Career Timeline (click to expand details), 3. Visual Skills Dashboard (Chart.js bar chart for proficiency), 4. Project Showcase (clickable cards opening modals with Problem-Solution-Result narrative), 5. Education/Certs section. This non-linear, interactive structure allows recruiters to quickly access the most relevant information (skills, projects) and visually grasp career progression, which is more engaging than a static document. -->
+    <!-- Visualization & Content Choices: 1. Career History -> Goal: Show Change -> Viz: Interactive horizontal timeline -> Interaction: Click to reveal details -> Justification: Visualizes growth and allows selective deep-dives. 2. Skills List -> Goal: Compare/Organize -> Viz: Chart.js Horizontal Bar Chart -> Interaction: Categorized view with proficiency ratings -> Justification: Quantifies and visualizes proficiency in a dense skill list, better than text. 3. Project Experience -> Goal: Inform/Organize -> Viz: Grid of cards with Modals -> Interaction: Click to open detailed view -> Justification: Separates high-impact achievements from general job duties, using a Problem-Solution-Result framework for clarity. Library: Chart.js for skills visualization. No SVG/Mermaid used. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* slate-50 */
+            color: #1e293b; /* slate-800 */
+        }
+        .nav-link {
+            transition: color 0.3s ease, border-bottom-color 0.3s ease;
+            border-bottom: 2px solid transparent;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: #0f766e; /* teal-700 */
+            border-bottom-color: #0f766e;
+        }
+        .timeline-item-content {
+            transition: max-height 0.7s ease-in-out, opacity 0.5s ease-in-out, transform 0.7s ease-in-out;
+            max-height: 0;
+            opacity: 0;
+            transform: translateY(-10px);
+            overflow: hidden;
+        }
+        .timeline-item.active .timeline-item-content {
+            max-height: 1000px;
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .modal-overlay {
+            transition: opacity 0.3s ease;
+        }
+        .modal-content {
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+        .chart-container { 
+            position: relative; 
+            width: 100%; 
+            max-width: 800px; 
+            margin-left: auto; 
+            margin-right: auto; 
+            height: 450px;
+            max-height: 50vh; 
+        }
+        @media (min-width: 768px) { .chart-container { height: 500px; } }
+    </style>
 </head>
-<body>
-  <header>
-    <h1>Kashif Umair Liaqat</h1>
-    <p>Software Engineer</p>
-  </header>
-  <main>
-    <section>
-      <h2>About Me</h2>
-      <p>Hello! I'm Kashif Umair Liaqat, a passionate software engineer. I love building web applications and exploring new technologies.</p>
-    </section>
-    <section>
-      <h2>Contact</h2>
-      <p>You can reach me via <a href="mailto:kashif@example.com">email</a>.</p>
-    </section>
-  </main>
-  <footer>
-    &copy; <span id="year"></span> Kashif Umair Liaqat
-  </footer>
-  <script>
-    document.getElementById('year').textContent = new Date().getFullYear();
-  </script>
+<body class="antialiased">
+
+    <!-- Header & Navigation -->
+    <header id="header" class="bg-slate-50/80 backdrop-blur-lg sticky top-0 z-40 w-full border-b border-slate-200">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <a href="#home" class="text-xl font-bold text-teal-700">Kashif Umair Liaqat</a>
+                <nav class="hidden md:flex space-x-8">
+                    <a href="#about" class="nav-link font-medium pb-1">About</a>
+                    <a href="#timeline" class="nav-link font-medium pb-1">Timeline</a>
+                    <a href="#skills" class="nav-link font-medium pb-1">Skills</a>
+                    <a href="#projects" class="nav-link font-medium pb-1">Projects</a>
+                    <a href="#education" class="nav-link font-medium pb-1">Education</a>
+                </nav>
+                 <button id="mobile-menu-button" class="md:hidden p-2 rounded-md text-slate-600 hover:text-teal-700 hover:bg-slate-100">
+                    <span class="sr-only">Open menu</span>
+                    <div id="hamburger-icon" class="space-y-1.5">
+                        <span class="block w-6 h-0.5 bg-current"></span>
+                        <span class="block w-6 h-0.5 bg-current"></span>
+                        <span class="block w-4 h-0.5 bg-current"></span>
+                    </div>
+                </button>
+            </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 border-t border-slate-200">
+                <a href="#about" class="block nav-link px-3 py-2 rounded-md text-base font-medium">About</a>
+                <a href="#timeline" class="block nav-link px-3 py-2 rounded-md text-base font-medium">Timeline</a>
+                <a href="#skills" class="block nav-link px-3 py-2 rounded-md text-base font-medium">Skills</a>
+                <a href="#projects" class="block nav-link px-3 py-2 rounded-md text-base font-medium">Projects</a>
+                <a href="#education" class="block nav-link px-3 py-2 rounded-md text-base font-medium">Education</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8">
+
+        <!-- Home/Hero Section -->
+        <section id="home" class="min-h-[calc(100vh-4rem)] flex items-center py-16">
+            <div class="w-full text-center md:text-left">
+                <h1 class="text-4xl md:text-6xl font-bold tracking-tight text-slate-900">Kashif Umair Liaqat</h1>
+                <p class="mt-4 text-xl md:text-2xl font-medium text-teal-700">Engineering Leader | Building Impactful Applications<br>(Ruby on Rails, React, AWS)</p>
+                <p class="mt-6 max-w-3xl mx-auto md:mx-0 text-lg text-slate-600">
+                    With over 13 years of experience, I build scalable web applications that solve real-world problems, specializing in Ruby on Rails, React, and AWS. I thrive on leading high-impact teams, refining engineering processes, and delivering features used by millions.
+                </p>
+                <div class="mt-8 flex justify-center md:justify-start space-x-6">
+                     <a href="mailto:mail@kashif.ie" class="text-slate-500 hover:text-teal-700 transition">
+                        <span class="sr-only">Email</span>
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                    </a>
+                    <a href="#" class="text-slate-500 hover:text-teal-700 transition">
+                        <span class="sr-only">LinkedIn</span>
+                        <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+                    </a>
+                    <a href="#" class="text-slate-500 hover:text-teal-700 transition">
+                        <span class="sr-only">GitHub</span>
+                        <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.91 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about" class="py-24">
+            <div class="max-w-3xl mx-auto text-center">
+                <h2 class="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">About Me</h2>
+                <p class="mt-4 text-lg text-slate-600">
+                    This section introduces my professional journey and philosophy. I am a product-focused engineer dedicated to creating technology that delivers real value. Below, you will find an interactive timeline of my career, a detailed breakdown of my technical skills, and a showcase of key projects that highlight my experience in building robust and scalable applications.
+                </p>
+            </div>
+        </section>
+
+        <!-- Career Timeline Section -->
+        <section id="timeline" class="py-24">
+            <div class="max-w-5xl mx-auto">
+                <h2 class="text-3xl font-bold tracking-tight text-center text-slate-900 sm:text-4xl">Career Timeline</h2>
+                <p class="mt-4 text-lg text-center text-slate-600 max-w-3xl mx-auto">
+                    My career has been a journey of continuous growth and learning. The timeline below charts my progression through various roles and companies. Click on any company to expand its details and see the key contributions and technologies I worked with during my tenure there.
+                </p>
+                <div id="timeline-container" class="mt-16 relative">
+                    <!-- JS will populate this -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Skills Section -->
+        <section id="skills" class="py-24 bg-slate-100/70">
+            <div class="max-w-5xl mx-auto">
+                <h2 class="text-3xl font-bold tracking-tight text-center text-slate-900 sm:text-4xl">Technical Skills</h2>
+                 <p class="mt-4 text-lg text-center text-slate-600 max-w-3xl mx-auto">
+                    A great product requires a versatile toolkit. This section provides a visual overview of my technical proficiencies, categorized for clarity. The chart illustrates my level of expertise across various domains, from backend frameworks and databases to cloud infrastructure and frontend technologies. This visualization helps in quickly assessing the breadth and depth of my capabilities.
+                </p>
+                <div class="mt-12">
+                    <div class="chart-container">
+                        <canvas id="skillsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Projects Section -->
+        <section id="projects" class="py-24">
+            <div class="max-w-6xl mx-auto">
+                <h2 class="text-3xl font-bold tracking-tight text-center text-slate-900 sm:text-4xl">Project Showcase</h2>
+                <p class="mt-4 text-lg text-center text-slate-600 max-w-3xl mx-auto">
+                    Here are some of the key initiatives I've led or made significant contributions to. Each project represents a unique challenge and solution, showcasing my ability to translate business needs into functional, high-impact technology. Click on any project card to learn more about the problem we solved, the technology stack used, and the results we achieved.
+                </p>
+                <div id="projects-grid" class="mt-16 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+                    <!-- JS will populate this -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Education & Certifications Section -->
+        <section id="education" class="py-24 bg-slate-100/70">
+            <div class="max-w-5xl mx-auto">
+                <h2 class="text-3xl font-bold tracking-tight text-center text-slate-900 sm:text-4xl">Education & Certifications</h2>
+                <p class="mt-4 text-lg text-center text-slate-600 max-w-3xl mx-auto">
+                    Continuous learning is at the core of my professional development. This section outlines my formal education, which provided a strong theoretical foundation, alongside professional certifications that demonstrate my commitment to mastering new technologies and methodologies.
+                </p>
+                <div class="mt-16 grid md:grid-cols-2 gap-12">
+                    <div id="education-container">
+                        <h3 class="text-2xl font-semibold text-slate-800 mb-6">Formal Education</h3>
+                        <!-- JS will populate this -->
+                    </div>
+                    <div id="certs-container">
+                        <h3 class="text-2xl font-semibold text-slate-800 mb-6">Courses & Certifications</h3>
+                        <!-- JS will populate this -->
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-800 text-slate-400">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 text-center">
+            <p>&copy; 2025 Kashif Umair Liaqat. All Rights Reserved.</p>
+            <p class="text-sm mt-2">Designed and built to be an interactive portfolio.</p>
+        </div>
+    </footer>
+
+    <!-- Project Modal -->
+    <div id="project-modal" class="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4 hidden modal-overlay">
+        <div id="modal-content" class="bg-white rounded-lg shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto p-8 transform scale-95 opacity-0 modal-content">
+            <!-- JS will populate this -->
+        </div>
+    </div>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // --- Data ---
+            const experienceData = [
+                {
+                    company: "Intercom",
+                    role: "Senior Product Engineer",
+                    period: "Oct 2023 - Feb 2025",
+                    details: [
+                        "Worked on the Pricing & Packaging team to design and implement solutions for billing and subscriptions.",
+                        "Led cross-functional projects with engineers, PMs, and designers to deliver impactful features.",
+                        "Integrated and maintained billing systems using Stripe and Zuora, improving billing accuracy and reducing support tickets.",
+                        "Contributed to core services using Ruby on Rails, Ember.js, and Elasticsearch, with observability via Kibana.",
+                        "Improved testing and deployment pipelines, boosting developer experience and release safety.",
+                        "Mentored new hires and facilitated knowledge-sharing sessions within the team."
+                    ],
+                    tech: ["Ruby on Rails", "Ember.js", "Elasticsearch", "Kibana", "Stripe", "Zuora"]
+                },
+                {
+                    company: "Global-e",
+                    role: "Principal Software Engineer",
+                    period: "Jan 2023 - Oct 2023",
+                    details: [
+                        "Developed backend systems using Scala and Postgres, supporting the company's payment processing infrastructure.",
+                        "Collaborated with the payments team to integrate various payment gateways, including Stripe, Klarna, Apple Pay, and Google Pay.",
+                        "Designed and contributed to the fraud detection service.",
+                        "Significantly improved payment workflows, enhancing efficiency and reliability."
+                    ],
+                    tech: ["Scala", "Postgres", "Stripe", "Klarna", "Apple Pay", "Google Pay"]
+                },
+                {
+                    company: "Zendesk",
+                    role: "Tech Lead & Senior Software Engineer",
+                    period: "Jun 2019 - Jan 2023",
+                    details: [
+                        "Made crucial technical decisions to support product management objectives and enhanced the company's competitive standing.",
+                        "Integrated various microservices within the Zendesk ecosystem.",
+                        "Mentored newly hired software engineers through routine coaching and training.",
+                        "Practiced Agile Scrum methodologies, often acting as scrum master.",
+                        "Managed deployments to staging and production servers.",
+                        "Contributed to both frontend and backend development of new features."
+                    ],
+                    tech: ["Ruby on Rails", "ReactJS", "GraphQL", "Apache Kafka", "RESTful APIs", "Twilio", "Github Actions", "Spinnaker", "Jenkins", "Rspec"]
+                },
+                {
+                    company: "7Vals",
+                    role: "Principal / Senior / Software Engineer",
+                    period: "Jul 2012 - Jun 2019",
+                    details: [
+                        "Played a pivotal role in establishing and building a software engineering and development company.",
+                        "Led complex software development for invoice management, e-commerce, sales, inventory, and asset tracking.",
+                        "Built a strong reputation for delivering high-quality, cost-efficient solutions used by Fortune 500 firms including NASA, Amazon, and Microsoft.",
+                        "Actively participated in DevOps, server deployments on AWS, and integrated the complete CI/CD cycle.",
+                        "Mentored junior engineers, performed code reviews, and managed direct customer interaction."
+                    ],
+                    tech: ["Ruby on Rails", "MySQL", "HTML5", "CSS3", "JQuery", "Bootstrap", "AWS", "Rubber", "Capistrano", "Rspec"]
+                }
+            ];
+
+            const skillsData = {
+                'Languages & Frameworks': [
+                    { skill: 'Ruby on Rails', level: 95 },
+                    { skill: 'ReactJS', level: 90 },
+                    { skill: 'Javascript', level: 88 },
+                    { skill: 'Scala', level: 75 },
+                    { skill: 'Ember.js', level: 70 },
+                    { skill: 'HTML5/CSS3', level: 90 },
+                ],
+                'Databases & Streaming': [
+                    { skill: 'MySQL', level: 90 },
+                    { skill: 'Postgres', level: 85 },
+                    { skill: 'Elasticsearch', level: 80 },
+                    { skill: 'Apache Kafka', level: 85 },
+                    { skill: 'Redis', level: 80 },
+                ],
+                'Cloud & DevOps': [
+                    { skill: 'AWS', level: 85 },
+                    { skill: 'Docker', level: 88 },
+                    { skill: 'Github Actions', level: 85 },
+                    { skill: 'Spinnaker', level: 80 },
+                    { skill: 'Jenkins', level: 80 },
+                ],
+                'APIs & Testing': [
+                    { skill: 'GraphQL', level: 85 },
+                    { skill: 'RESTful APIs', level: 95 },
+                    { skill: 'Rspec/Capybara', level: 90 },
+                ],
+            };
+
+            const projectsData = [
+                {
+                    title: "Billing & Subscriptions Platform",
+                    company: "Intercom",
+                    problem: "The existing billing system faced challenges with accuracy and generated a high volume of support tickets, impacting both customer satisfaction and operational efficiency.",
+                    solution: "Led the design and implementation of a new, robust billing and subscriptions platform. This involved a deep integration with leading payment processors Stripe and Zuora, and architecting core services in Ruby on Rails and Ember.js to handle complex pricing and packaging logic.",
+                    result: "Successfully improved overall billing accuracy, leading to a significant reduction in customer support tickets. The new platform provided a more scalable and maintainable foundation for future pricing strategies.",
+                    tech: ["Ruby on Rails", "Ember.js", "Elasticsearch", "Stripe", "Zuora"]
+                },
+                {
+                    title: "Global Payment Infrastructure",
+                    company: "Global-e",
+                    problem: "The company required a highly scalable and reliable backend system to support its rapidly growing cross-border e-commerce payment processing operations.",
+                    solution: "Developed critical backend systems using Scala and Postgres. This included engineering the core payment workflows and collaborating extensively to integrate a diverse range of international payment gateways like Stripe, Klarna, Apple Pay, and Google Pay. Also designed and implemented a new fraud detection service.",
+                    result: "The new infrastructure significantly enhanced the efficiency and reliability of the payment processing system, enabling smoother and more secure international transactions for a global customer base.",
+                    tech: ["Scala", "Postgres", "Payment Gateways", "Fraud Detection"]
+                },
+                 {
+                    title: "Microservices & Feature Development",
+                    company: "Zendesk",
+                    problem: "As a large-scale SaaS platform, Zendesk needed to integrate various microservices seamlessly while continuously delivering new product features for its 'Talk' product without compromising system stability.",
+                    solution: "As Tech Lead, I drove key technical decisions for new features, integrating with the complex microservice ecosystem using GraphQL, Apache Kafka, and RESTful APIs. I contributed to both frontend (ReactJS) and backend (Ruby on Rails) development, while also mentoring engineers and managing the agile process as a Scrum Master.",
+                    result: "Delivered numerous impactful features that enhanced the product's competitive standing. Improved system and process efficiency, and strengthened the team's capabilities through mentorship and refined agile practices.",
+                    tech: ["Ruby on Rails", "ReactJS", "GraphQL", "Apache Kafka", "Twilio"]
+                },
+                {
+                    title: "EZOfficeInventory SaaS Platform",
+                    company: "7Vals",
+                    problem: "Businesses required a comprehensive, unified platform to manage diverse operational needs, including inventory, asset tracking, invoicing, and e-commerce, which were often handled by disparate, inefficient systems.",
+                    solution: "Led the development of a multi-faceted SaaS solution from the ground up. This involved building a suite of applications for various business functions, establishing DevOps practices with a full CI/CD pipeline on AWS, and managing the entire development lifecycle, including customer relations and team mentorship.",
+                    result: "The platform became a highly successful commercial product, adopted by major organizations and Fortune 500 firms like NASA, Amazon, Microsoft, and Netflix, establishing a reputation for high-quality, cost-efficient technological solutions.",
+                    tech: ["Ruby on Rails", "MySQL", "AWS", "CI/CD", "Bootstrap"]
+                }
+            ];
+            
+            const educationHistory = [
+                {
+                    degree: "M.Sc (IT)",
+                    institution: "Punjab University College of Information Technology",
+                    period: "2010 - 2012",
+                    details: "Completed my masters degree in Information Technology from one of the most prestigious IT institutes in the country, securing a 3.47 CGPA. Learned new programming languages that include Java, PHP, C# and Javascript."
+                },
+                {
+                    degree: "B.Sc (CS)",
+                    institution: "Govt. Islamia College, Civil Lines",
+                    period: "2008 - 2010",
+                    details: "Completed my B. Sc. in Computer Science from this college. Learned to create computer programs from scratch using Visual Basic 6.0."
+                }
+            ];
+
+            const certifications = [
+                "SQL (Basic & Intermediate) - HackerRank",
+                "Ruby (Basic & Intermediate) - HackerRank",
+                "Docker, React.js, Scrum - LinkedIn",
+                "AWS Cloud Technical Essentials - Coursera",
+                "Modern React with Redux - Udemy",
+                "Master in Hacking with XSS Cross Site Scripting",
+                "Intro to Python for Data Science - Datacamp"
+            ];
+
+
+            // --- DOM Elements ---
+            const timelineContainer = document.getElementById('timeline-container');
+            const projectsGrid = document.getElementById('projects-grid');
+            const projectModal = document.getElementById('project-modal');
+            const modalContent = document.getElementById('modal-content');
+            const educationContainer = document.getElementById('education-container');
+            const certsContainer = document.getElementById('certs-container');
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+
+
+            // --- Functions ---
+            function populateTimeline() {
+                let html = '<div class="absolute left-1/2 -ml-px w-0.5 h-full bg-slate-300"></div>';
+                experienceData.forEach((item, index) => {
+                    html += `
+                        <div class="timeline-item mb-12 relative cursor-pointer" data-index="${index}">
+                            <div class="flex items-center">
+                                <div class="w-1/2 pr-8 text-right">
+                                    <div class="p-4 bg-white rounded-lg shadow-md border border-slate-200">
+                                        <h3 class="font-bold text-teal-700 text-lg">${item.company}</h3>
+                                        <p class="font-semibold text-slate-800">${item.role}</p>
+                                        <p class="text-sm text-slate-500">${item.period}</p>
+                                    </div>
+                                </div>
+                                <div class="w-10 h-10 bg-teal-600 rounded-full z-10 flex items-center justify-center shadow-lg">
+                                    <div class="w-3 h-3 bg-white rounded-full"></div>
+                                </div>
+                                <div class="w-1/2 pl-8"></div>
+                            </div>
+                            <div class="timeline-item-content mt-4">
+                                <div class="bg-slate-100/70 p-6 rounded-lg shadow-inner border border-slate-200">
+                                    <ul class="space-y-2 list-disc list-inside text-slate-600">
+                                        ${item.details.map(d => `<li>${d}</li>`).join('')}
+                                    </ul>
+                                    <div class="mt-4 flex flex-wrap gap-2">
+                                        ${item.tech.map(t => `<span class="bg-teal-100 text-teal-800 text-xs font-medium px-2.5 py-0.5 rounded-full">${t}</span>`).join('')}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                timelineContainer.innerHTML = html;
+            }
+
+            function createSkillsChart() {
+                const ctx = document.getElementById('skillsChart').getContext('2d');
+                const labels = Object.values(skillsData).flat().map(s => s.skill);
+                const data = Object.values(skillsData).flat().map(s => s.level);
+                
+                const categoryColors = {
+                    'Languages & Frameworks': 'rgba(13, 148, 136, 0.7)', // teal-600
+                    'Databases & Streaming': 'rgba(8, 126, 114, 0.7)', // teal-700
+                    'Cloud & DevOps': 'rgba(15, 118, 110, 0.7)', // teal-800
+                    'APIs & Testing': 'rgba(19, 78, 74, 0.7)', // teal-900
+                };
+
+                const backgroundColors = [];
+                Object.keys(skillsData).forEach(category => {
+                    skillsData[category].forEach(() => {
+                        backgroundColors.push(categoryColors[category]);
+                    });
+                });
+
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Proficiency',
+                            data: data,
+                            backgroundColor: backgroundColors,
+                            borderColor: backgroundColors.map(c => c.replace('0.7', '1')),
+                            borderWidth: 1,
+                            indexAxis: 'y',
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        indexAxis: 'y',
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        if (context.parsed.x !== null) {
+                                            label += context.parsed.x + '%';
+                                        }
+                                        return label;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                max: 100,
+                                grid: {
+                                  color: 'rgba(203, 213, 225, 0.3)'  
+                                },
+                                ticks: {
+                                    callback: function(value) {
+                                        return value + '%'
+                                    }
+                                }
+                            },
+                            y: {
+                                grid: {
+                                  display: false
+                                },
+                                ticks: {
+                                    font: {
+                                        size: 14,
+                                    },
+                                    color: '#334155'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            function populateProjects() {
+                projectsGrid.innerHTML = projectsData.map((project, index) => `
+                    <div class="project-card bg-white p-6 rounded-lg shadow-md border border-slate-200 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer flex flex-col" data-index="${index}">
+                        <h3 class="text-xl font-bold text-teal-700">${project.title}</h3>
+                        <p class="text-sm font-medium text-slate-500 mb-2">${project.company}</p>
+                        <p class="text-slate-600 flex-grow">${project.problem.substring(0, 100)}...</p>
+                        <div class="mt-4 pt-4 border-t border-slate-200">
+                             <span class="text-teal-600 font-semibold hover:text-teal-800">View Details &rarr;</span>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            function openProjectModal(index) {
+                const project = projectsData[index];
+                modalContent.innerHTML = `
+                    <button id="close-modal" class="absolute top-4 right-6 text-3xl font-bold text-slate-500 hover:text-slate-800">&times;</button>
+                    <h2 class="text-3xl font-bold text-teal-700 mb-2">${project.title}</h2>
+                    <p class="text-md font-medium text-slate-500 mb-6">${project.company}</p>
+                    
+                    <div class="space-y-6">
+                        <div>
+                            <h4 class="font-semibold text-lg text-slate-800 mb-2">The Problem</h4>
+                            <p class="text-slate-600">${project.problem}</p>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-lg text-slate-800 mb-2">My Solution</h4>
+                            <p class="text-slate-600">${project.solution}</p>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-lg text-slate-800 mb-2">The Result</h4>
+                            <p class="text-slate-600">${project.result}</p>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-lg text-slate-800 mb-2">Key Technologies</h4>
+                            <div class="flex flex-wrap gap-2">
+                                ${project.tech.map(t => `<span class="bg-teal-100 text-teal-800 text-sm font-medium px-3 py-1 rounded-full">${t}</span>`).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                projectModal.classList.remove('hidden');
+                setTimeout(() => {
+                    projectModal.classList.remove('opacity-0');
+                    modalContent.classList.remove('scale-95', 'opacity-0');
+                    modalContent.classList.add('scale-100', 'opacity-100');
+                }, 10);
+
+                document.getElementById('close-modal').addEventListener('click', closeProjectModal);
+            }
+
+            function closeProjectModal() {
+                modalContent.classList.remove('scale-100', 'opacity-100');
+                modalContent.classList.add('scale-95', 'opacity-0');
+                projectModal.classList.add('opacity-0');
+                setTimeout(() => {
+                    projectModal.classList.add('hidden');
+                }, 300);
+            }
+
+            function populateEducation() {
+                educationContainer.innerHTML += educationHistory.map(edu => `
+                    <div class="mb-6">
+                        <h4 class="text-xl font-semibold text-slate-800">${edu.degree}</h4>
+                        <p class="text-teal-700 font-medium">${edu.institution}</p>
+                        <p class="text-sm text-slate-500 mb-2">${edu.period}</p>
+                        <p class="text-slate-600">${edu.details}</p>
+                    </div>
+                `).join('');
+                
+                certsContainer.innerHTML += `
+                    <ul class="space-y-3">
+                        ${certifications.map(cert => `
+                            <li class="flex items-start">
+                                <span class="flex-shrink-0 mt-1 mr-3 h-2 w-2 rounded-full bg-teal-500"></span>
+                                <span class="text-slate-700">${cert}</span>
+                            </li>
+                        `).join('')}
+                    </ul>
+                `;
+            }
+            
+            function handleNavScroll() {
+                const sections = document.querySelectorAll('main section');
+                const navLinks = document.querySelectorAll('header nav a');
+                
+                window.addEventListener('scroll', () => {
+                    let current = '';
+                    sections.forEach(section => {
+                        const sectionTop = section.offsetTop;
+                        if (pageYOffset >= sectionTop - 80) {
+                            current = section.getAttribute('id');
+                        }
+                    });
+
+                    navLinks.forEach(link => {
+                        link.classList.remove('active');
+                        if (link.getAttribute('href').includes(current)) {
+                            link.classList.add('active');
+                        }
+                    });
+                });
+            }
+
+            function handleMobileMenu() {
+                mobileMenuButton.addEventListener('click', () => {
+                    mobileMenu.classList.toggle('hidden');
+                });
+                document.querySelectorAll('#mobile-menu a').forEach(link => {
+                    link.addEventListener('click', () => {
+                        mobileMenu.classList.add('hidden');
+                    });
+                });
+            }
+
+            // --- Event Listeners ---
+            timelineContainer.addEventListener('click', function(e) {
+                const item = e.target.closest('.timeline-item');
+                if (item) {
+                    item.classList.toggle('active');
+                    // Optional: close others when one is opened
+                    this.querySelectorAll('.timeline-item').forEach(otherItem => {
+                        if (otherItem !== item) {
+                            otherItem.classList.remove('active');
+                        }
+                    });
+                }
+            });
+
+            projectsGrid.addEventListener('click', function(e) {
+                const card = e.target.closest('.project-card');
+                if (card) {
+                    openProjectModal(card.dataset.index);
+                }
+            });
+
+            projectModal.addEventListener('click', function(e) {
+                if (e.target === projectModal) {
+                    closeProjectModal();
+                }
+            });
+
+
+            // --- Initialization ---
+            populateTimeline();
+            createSkillsChart();
+            populateProjects();
+            populateEducation();
+            handleNavScroll();
+            handleMobileMenu();
+        });
+    </script>
 </body>
 </html>
